@@ -145,8 +145,6 @@ CREATE TABLE order_Line (
 
 
 
-
-
 -- Order_History Table
 CREATE TABLE order_history (
     history_id INT PRIMARY KEY,
@@ -156,10 +154,6 @@ CREATE TABLE order_history (
     FOREIGN KEY (order_id) REFERENCES cust_order(order_id),
     FOREIGN KEY (status_id) REFERENCES order_status(orderstatus_id)
 );
-
-
-
-
 
 
 
@@ -173,6 +167,106 @@ FOREIGN KEY (author_id) REFERENCES author(author_id)
 );
 
 
+
+
+--Creating Roles and assignments
+-----CREATE ROLES  
+
+CREATE ROLE bookstore_admin;
+CREATE ROLE inventory_manager;
+CREATE ROLE sales;
+CREATE ROLE auditor;
+
+--- inmysql
+-- CREATE ROLE 'bookstore_admin', 'inventory_manager', 'sales_staff', 'auditor';
+
+---------CREATE USERS 
+CREATE USER lucy WITH PASSWORD '1234';
+CREATE USER crystal WITH PASSWORD '1234';
+CREATE USER lynda WITH PASSWORD '1234';
+CREATE USER david WITH PASSWORD '1234';
+CREATE USER zablon WITH PASSWORD '1234';
+
+-- -- Create users in MySQL with host specification
+-- CREATE USER 'lucy'@'localhost' IDENTIFIED BY '1234';
+-- CREATE USER 'crystal'@'localhost' IDENTIFIED BY '1234';
+-- CREATE USER 'lynda'@'localhost' IDENTIFIED BY '1234';
+-- CREATE USER 'david'@'localhost' IDENTIFIED BY '1234';
+-- CREATE USER 'zablon'@'localhost' IDENTIFIED BY '1234';
+
+
+
+
+---- ACCESS PRIVILEDGES --USING POSTGRESQL SYNTAX
+--- bookstore_admin
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO bookstore_admin;
+
+ ------- In mysql
+-- GRANT ALL PRIVILEGES ON bookstoreDB.* TO 'bookstore_admin'@'localhost';
+
+
+
+
+---- inventory manager
+-- Core inventory tables
+GRANT SELECT, INSERT, UPDATE ON book TO inventory_manager;
+GRANT SELECT, INSERT, UPDATE ON author TO inventory_manager;
+GRANT SELECT, INSERT, UPDATE ON book_author TO inventory_manager;
+GRANT SELECT, INSERT, UPDATE ON publisher TO inventory_manager;
+GRANT SELECT, INSERT, UPDATE ON book_language TO inventory_manager;
+
+-- Related reference tables
+GRANT SELECT ON country TO inventory_manager;
+GRANT SELECT ON shipping_method TO inventory_manager;
+GRANT SELECT ON order_status TO inventory_manager;
+
+-- Order visibility for restocking purposes
+GRANT SELECT ON cust_order TO inventory_manager;
+GRANT SELECT ON order_line TO inventory_manager;
+
+
+-- sales staff
+-- Customer management
+GRANT SELECT, INSERT, UPDATE ON customer TO sales;
+GRANT SELECT, INSERT, UPDATE ON address TO sales;
+GRANT SELECT, INSERT, UPDATE ON customer_address TO sales;
+GRANT SELECT ON address_status TO sales;
+GRANT SELECT ON country TO sales;
+
+-- Order processing
+GRANT SELECT, INSERT, UPDATE ON cust_order TO sales;
+GRANT SELECT, INSERT, UPDATE ON order_line TO sales;
+GRANT SELECT ON order_status TO sales;
+GRANT SELECT ON shipping_method TO sales;
+
+-- Book catalog access
+GRANT SELECT ON book TO sales;
+GRANT SELECT ON author TO sales;
+GRANT SELECT ON book_author TO sales;
+GRANT SELECT ON publisher TO sales;
+GRANT SELECT ON book_language TO sales;
+
+
+---client auditor
+
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO auditor;
+-- in mySQL
+-- GRANT SELECT ON `bookstore`.* TO 'auditor'@'localhost';
+
+
+-- Assign users to their roles
+GRANT bookstore_admin TO lucy;
+GRANT inventory_manager TO crystal;
+GRANT sales TO david;
+GRANT sales TO lynda;
+GRANT auditor TO zablon;
+
+-- Assign roles to users (MySQL 8.0+)
+-- GRANT 'bookstore_admin' TO 'lucy'@'localhost';
+-- GRANT 'inventory_manager' TO 'crystal'@'localhost';
+-- GRANT 'sales' TO 'david'@'localhost';
+-- GRANT 'sales' TO 'lynda'@'localhost';
+-- GRANT 'auditor' TO 'zablon'@'localhost';
 
 
 
